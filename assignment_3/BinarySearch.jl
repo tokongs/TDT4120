@@ -1,32 +1,44 @@
 function binaryintervalsearch(x,delta, coordinate)
-    median = x[size(x, 1), coordinate, :]
-    if size(x, 1)%2 == 0
-        median_index = floor(Int, size(x, 1)/2)
+    median = x[floor(Int, size(x, 1)/2), coordinate, 1]
+    max = 0
+    min = 0
+    
+    left_cursor = 1
+    right_cursor = floor(Int, size(x, 1)/2)
+
+
+    while left_cursor < right_cursor -1
+        if median-delta > x[floor(Int, (right_cursor + left_cursor) / 2), coordinate, 1]
+            left_cursor = floor(Int, (right_cursor + left_cursor) / 2)
+        else
+            right_cursor = floor(Int, (right_cursor + left_cursor) / 2)
+        end 
+    end
+
+    if median-delta > x[left_cursor, coordinate, 1]
+        min = right_cursor
     else
-        median_index = floor(Int, size(x, 1)/2)+1
-    interval_start = 1
-    interval_end = size(x, 1)
-
-    if x[interval_start, coordinate, :] >= median-delta && x[interval_end, coordinate, :] >= median_delta]
-        return 0, 0
+        min = left_cursor
     end
 
+    left_cursor = floor(Int, size(x, 1)/2)
+    right_cursor = size(x, 1)
 
-    left_cursor = floor(Int, median_index/2)
-    right_cursor = 3*floor(Int, median_index/2)
+    while left_cursor < right_cursor -1
+        if median+delta > x[floor(Int, (right_cursor + left_cursor) / 2), coordinate, 1]
+            left_cursor = floor(Int, (right_cursor + left_cursor) / 2)
+        else
+            right_cursor = floor(Int, (right_cursor + left_cursor) / 2)
+        end 
+    end
 
-    if median-delta > x[left_cursor, coordinate, :]
-        interval_start = left_cursor + 1
-        left_cursor = left_cursor - interval_start
+    if median+delta < x[right_cursor, coordinate, 1]
+        max = left_cursor
     else
-        left_cursor
+        max = right_cursor
     end
-    if median + delta < x[right_cursor, coordinate, :]
-        interval_end = right_cursor - 1
-        right_cursor = interval_end - right_cursor
-    end
-
-    x, y = binaryintervalsearch(x[interval_start:interval_end, : , :], delta, coordinate)
-    x = x
-    return inter
+        
+    return min, max
 end
+
+binaryintervalsearch([1 2; 3 4; 5 6; 7 8; 9 10; 11 12; 13 14; 15 16; 17 18; 19 20], 6, 1)
