@@ -12,8 +12,6 @@ function binaryintervalsearch(x,delta, coordinate)
 
     maximum = -1
     minimum = -1
-    println(left)
-    println(right)
     l = 1
     r = size(left, 1)
     m = l + div(r-l, 2)
@@ -40,14 +38,12 @@ function binaryintervalsearch(x,delta, coordinate)
         if m == l
             break
         end
-        println(l, ", ", m, ", ", r)
         if median+delta < right[m, coordinate, 1]
             r = m-1
         else
             l = m
         end 
     end
-    println(l, ", ", m, ", ", r)
 
     if right[l, coordinate, 1] <= median+delta
             maximum = div(size(x, 1), 2) + l
@@ -59,4 +55,4 @@ function binaryintervalsearch(x,delta, coordinate)
     return minimum, maximum
 end
 
-println(binaryintervalsearch( [1 0; 2 0; 2 0; 3 0; 4 0; 5 0; 5 0], 1,  1))
+println(binaryintervalsearch( [1.0 0.0; 2.0 0.0; 3.0 0.0], 0.5,  1))

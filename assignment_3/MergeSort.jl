@@ -36,9 +36,9 @@ function mergesort(x, coordinate)
     if size(x, 1) == 1
         return x
     end
-    left = mergesort(x[1:floor(Int, size(x, 1)/2), :, :], coordinate)
-    right = mergesort(x[floor(Int, size(x, 1)/2)+1:end, :, :], coordinate)
+    left = mergesort(x[1:div(size(x, 1),2), :, :], coordinate)
+    right = mergesort(x[div(size(x, 1),2)+1:end, :, :], coordinate)
     return mergearrays(left, right, coordinate)
 end
 
-println(mergesort([1 2; 4 5; 2 1; 1 1],2))
+println(mergesort([1.0 0.0; 2.0 0.0; 3.0 0.0],1))
