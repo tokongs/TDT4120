@@ -238,7 +238,7 @@ Radix-Sort(A, d)
 We assume that the input is drawn form a uniform distribution of number with value in the range [0, 1). Then it has an average-case running time of O(n). We create n lists(buckets) and insert the values into the right bucket. We then sort each bucket independently and put them together in order. 
 
 #### Pseudo code
-```
+```6
 Bucker-Sort(A)
   let B[0...n-1] = new Array
   n = A.length
@@ -252,6 +252,11 @@ Bucker-Sort(A)
 ```
 
 # Medians and Order Statistics
+
+The selction problem is formally defined as follows:
+
+**Input** A set A of n (distinct) numbers and an integer i with $1 \le i \le n$
+**Output** The element x $\in$ A that is larger than exactly i-1 other elements of A
 ## Randomized select
 This is an algorithm for selecting the ith smallest element of an array A[p ... r].
 The worst-case running time is $\theta(n^2)$, but the expected time is $\theta(n)$
@@ -360,6 +365,14 @@ A hash table is an effective way to implement a dictionary.
 When we have a big Universe of keys, but not too many keys we can use a hash function to reduce the size needed from our underlying array. 
 
 Two keys can be hashed to the same value, a "collision". A method to resolve this is chaining, to place all elements in the same hash slot in a linked list. 
+
+### Hash functions
+$h(k) = \lfloor km \rfloor$, where $0 \le k \le 1$ is a simple uniform hashing algorithm.
+
+#### Division method
+$h(k) k \bmod m$, where k is the key and m is the number of slots you have.
+#### Multiplication method
+$h(k) = \lfloor m(kA \bmod 1)\rfloor$, where A is a constant in the range (0, 1).
 
 #### Pseudo code 
 
@@ -509,9 +522,83 @@ Tree-Delete(T, z)
 
 # Advanced design and analysis techniques
 
-## Dynamic programming
+# Dynamic programming
+Dynamic programming solves  problems by combining the solutions of subproblems. We typically apply dynamic programming to optimization problems with the following properties.
+  * Optimal substructure
+  
+    The optimal solution to the problem contains the optimal solution to the  subproblems
 
-## Greedy algorithms
+  * Overlapping subproblems
+  
+    This means that sub problems shares subproblems
+
+We solve each subproblem once and then save the result instead of doing it again later. 
+
+
+To solve a problem with dynamic programming:
+
+1. Characterize the structure of an optimal solution
+2. Rescursively define the value of an optimal solution
+3. Compute the value of an optimal solution, typically in a bottom-up fashion
+4. Construct an optimal solution form computed information.
+
+## Rod cutting 
+The rod cutting problem is that given a rod of length n inches and a table of prices $p_i$  for i = 1, 2,..., n. Determine the maximum revenue obtainable by cutting and selling the rod. 
+
+#### Pseudo code
+A recursive method for computing the problem 
+```
+Cut-Rod(p, n)
+  if n == 0
+    return 0
+  q = -infinity
+  for i = 1 to n
+    q = max(q, p[i] + Cut-Rod(p, n-i))
+  return q
+```
+
+Here is how to do it with dunamic programming
+
+```
+Bottom-Up-Cut-Rod(p, n)
+  let r = new Array of size n
+  r[0] = 0
+  for j = 1 to n
+    q = -infinity
+    for i = 1 to j
+      q = max(q, p[i] + r[j - i])
+    r[j] = q
+  return r[n]
+```
+
+## Longest common subsequence
+
+#### Pseudo code
+```
+LCS-Length(X, Y)
+  m = X.length
+  n = Y.length
+  let b = new Array[m, n]
+  let c = new Array[m, n]
+
+  for i = 1 to m
+    c[i, 0] = 0
+  for j = 0 to n
+    c[0, j] = 0
+  for i = 1 to m
+    for j = 1 to n
+      if x[i] == y[i]
+        c[i, j] = c[i -1, j -1] + 1
+        b[i, j] = "upleft"
+      elseif c[i - 1, j] >= c[i, j -1]
+        c[i, j] = c[i - 1, j]
+        b[i, j] = "up"
+      else
+        c[i, h] = c[i, j-1]
+        b[i, j] = "left"
+  return b, c
+```
+# Greedy algorithms
 
 A greedy algorithm always makes the locally optimal choice. Greedy algorithms don't always yield the globally optimal result, but for many problems they do. 
 
@@ -525,14 +612,14 @@ For a problem to be solvable with a greedy algorithm it needs two key properties
   The optimal solution to the problem contains the optimal solution to the subproblems
 
 
-### Pseduo code
 
-Suppose you have a set of activities that have a starting time and a finish time. You wish to select as many non overlapping activities as possible. 
 
+## Actitivity selection problem
+You hav a set of activities with diferent starting and finishing times. You want to go to as many as possible.
+#### Pseduo code
 This algorithm expects that the activities are ordered by monotonically increasing finish times. 
 
 We loop though all the activities and if the starting time of the current activity is greater than the finish time of the last activity we added, we add the current activity to our resulting array A. 
-
 ```
 Greedy-Activity-Selector(s, f)
   n = s.length
@@ -560,6 +647,11 @@ Recursive-Activity-Selector(s, f, k, n)
   else 
     return Ø
 ```
+## Knapsack problem
+
+We have two different versions of the knapasck problem , 0-1 knapsack problem and fractional knapsack problem.  A thief is robbing a store and want to steal as much value as possible. Each item has a worth and a weight. In the 0-1 problem the theif must take the item or not, but in the fractional problem the thief can take fractions of an item. 
+
+Greedy programming works on the fractional probelm but not 0-1.
 
 ### Huffman coding
 
@@ -585,12 +677,44 @@ Huffman(C)
 return Extract-Min(Q)
 ```
 
-# Advanced data structures
+# Amortized analysis
 
-## Data structures for disjoint sets
+Amortized is analysis is different from average-case analysis in that probablility is not involved.
+
+## Dynamic tables
+
+Sometimes we don't know how much space we need. Dynamic tables is good for this because the amortized cost of insertion and deletion is  O(1). The acctual cost is much greater the few times it happens that we need to increase the size of the table. 
+
+#### Pseduo code
+
+```
+Table-Insert(T, x)
+  if T.size == 0
+    allocate T.table with 1 slot
+    T.size = 1
+  if T.num == T.size
+    allocate new-table with 2*T.size slots
+    insert all items in T.table into new-table
+    free T.table
+    T.table = new-table
+    T.size = 2 * T.size
+  insert x into T.table
+  T.num = T.num + 1
+```
+
+# Data structures for disjoint sets
 This data structure needs to perform two operations, finding which unique set an element belongs to and uniting two sets.
 
-### Disjoint-set forest
+
+## Disjoint-set operations
+
+A disjoint-set data structure maintains a collection of disjoint dynamic sets. We represent each set by a representativ, an element from the set. 
+
+Make-Set(x) creater a nerw set from elelment x
+Union(x, y) Fuses the two sets that x, and y belong to
+Find-Set(x) Find the set that x belongs to. 
+
+## Disjoint-set forest
 
 In this structure we repesent disjoint sets with rootes trees. This is no faster than 2 linked-list representation, but we can use two heuristics to optimize the data structure.
 
@@ -637,11 +761,92 @@ Union(x, y)
 ##### Running time with union rank and path compression
 Worst case running time is O(m $\alpha$(n)) where $\alpha$ is 2 very slowly growing function. We can view the running time 2 linear in m for almost all intents and purposes. 
 
-# Graph Algorithms
+# Elementary Graph Algorithms
 
-## Minimum spanning tree
+## Representation of graphs
+There are two standard ways to represent a graph. As a collection of adjecency lists or as an adjacency matrix. 
 
-### Kruskals algorithm
+A sparse graph is when E is much less than V^2
+
+A dens graph is when E is close to V^2
+
+## BFS
+
+Breadth-first search visists each node's neighbors before it continues to work on the next node in line. We can use BFS to compute the distance from the source to each reacable vertex. 
+
+To keep track of where we are in the search, we can use color. All vertices start out as white. If a vertex is black, all it's neighbors are black or gray. If a vertex is gray neighbors can be any color. 
+
+
+The total running time of BFS is O(V + E)
+#### Pseduo code
+```
+BFS(G, s)
+  for each vertex u in G.V except s
+    u.color = white
+    u.d = infinite
+    u.p = nil
+  s.color = gray
+  s.d = 0
+  s.p = nil
+  Q = Ø
+  Enqueu(Q, s)
+  while Q != Ø
+    u = Dequeue(Q)
+    for each v in G.adj[u]
+      if v.color == white
+        v.color = gray
+        v.d = u.d +1
+        v.p = u
+        enqueue(Q, v)
+    u.color = black
+```
+
+## DFS
+
+Depth-first serach vistss a vertex's first child, then the child's first child and so first, and so on and so forth. 
+
+### Classification of edges
+1. Tree edges are edges in the depth-first forest. Edge (u, v) is a tree edge if v was discovered by exploring (u, v)
+2. Back edges are those edges (u, v) connecting a vertex u to an ancestor v in a depth-first tree. We consider solf-loops to be back edges. 
+3. Forward edges are those nontree edges (u, v) connection a vertex u to a descendant v in a depth-first tree
+4. Cross edges are all other edges. 
+
+Color to indicate edge type
+* white indicated a tree edge
+* gray indicates a back edge
+* balck indicates a forward or a cross edge
+
+#### Pseduo code
+```
+DFS(G)
+  for each vertex u in G.v
+    u.color = white
+    u.p = nil
+  time = 0
+  for each vertex u in G.V
+    if u.color = white
+      DFS-Visit(G, u)
+```
+```
+DFS-Visit(G, u)
+  time = time +1
+  u.d = time
+  u.color = gray
+  for each v in G.adj[u]
+    if v.color = white
+      v.p = u
+      DFS-Visit(G, v)
+  u.color = black
+  time = time +1
+  u.f = time
+```
+
+## Topological sort
+
+
+# Minimum spanning tree
+
+## Kruskals algorithm
 
 Kruskal creates 2 disjoint set forest containing all the vertices in the graph. It then sorts the edges in 2 non decreasing order. It then loop through the edges from lowest to height weight, and adding nodes that are not already conntected in the resulting graph.
 
@@ -660,7 +865,7 @@ MST-Kruskal(G, w)
   return A
 ```
 
-### Prims algorithm
+## Prims algorithm
 
 Prims algorithms finda a minimum spanning tree by starting at a arbitrary node v and always adding the lighest edge that connects the resulting set A to an isolated node. 
 
